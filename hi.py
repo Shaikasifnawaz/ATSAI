@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file
-from pymongo import MongoClient
+from pymongo import MongoClient, ssl_support
 from datetime import datetime
 import fitz  # PyMuPDF
 from flask_cors import CORS
@@ -22,11 +22,11 @@ load_dotenv()
 MONGO_USERNAME = "nikhilnaga1234"
 MONGO_PASSWORD = "Mongodbnew@"  # Original password
 encoded_password = quote_plus(MONGO_PASSWORD)  # URL-encode password
-MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{encoded_password}@cluster0.hvrs8.mongodb.net/?retryWrites=true&w=majority"
+MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{encoded_password}@cluster0.hvrs8.mongodb.net/{db_name}?retryWrites=true&w=majority"
 
 # Define the new collection name
 db_name = 'local_pdf_db'
-pdf_storage_path = 'C:\\Users\\user\\Desktop\\PAAP\\src\\assets\\uploads'
+pdf_storage_path = 'd:\\Graylogic\\LLM\\flask\\src\\assets\\uploads'  # Updated path for Render
 gemini_api_key = os.getenv("GOOGLE_API_KEY")
 
 # Configure Google AI
@@ -125,7 +125,7 @@ class PDFProcessor:
     def init_db(self):
         try:
             logging.debug(f"Connecting to MongoDB with URI: {self.db_uri}")
-            self.client = MongoClient(self.db_uri)
+            self.client = MongoClient(self.db_uri, ssl=True, ssl_cert_reqs=ssl_support.CERT_NONE)  # Not recommended for production
             self.db = self.client[self.db_name]
             self.pdf_collection = self.db['local_pdf_collection']
             self.details_collection = self.db['resume_details_collection']  # New collection for details
@@ -414,6 +414,7 @@ def upload_resumes():
         logging.error(f"Error in /upload endpoint: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 @app.route('/pdfs', methods=['GET'])
 def get_pdfs():
     try:
@@ -422,6 +423,7 @@ def get_pdfs():
     except Exception as e:
         logging.error(f"Error in /pdfs endpoint: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route('/pdf/<file_name>', methods=['GET'])
 def get_pdf(file_name):
@@ -434,6 +436,7 @@ def get_pdf(file_name):
     except Exception as e:
         logging.error(f"Error in /pdf/<file_name> endpoint: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route('/job-matching', methods=['POST'])
 def match_resumes():
@@ -500,7 +503,6 @@ def evaluate_job_posting():
                     "ai_feedback": ai_feedback.strip()
                 })
 
-      
         html_output = """<div style="max-width: 1000px; padding: 15px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; justify-content: center; overflow-x: auto;">"""
 
         for resume in matched_resumes:
@@ -519,6 +521,7 @@ def evaluate_job_posting():
     except Exception as e:
         logging.error(f"Error in /evaluate-job-posting endpoint: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
