@@ -16,14 +16,15 @@ app = Flask(__name__)
 CORS(app)  # Allow all origins by default
 
 # Load environment variables
+# Load environment variables
 load_dotenv()
 
 # Update MongoDB URI with new credentials
-MONGO_USERNAME = os.getenv("MONGO_USERNAME", "nikhilnaga1234")
-MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "Mongodbnew@")
+MONGO_USERNAME = os.getenv("MONGO_USERNAME", "mongodb384")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "mongodb@1234")
 encoded_password = quote_plus(MONGO_PASSWORD)  # URL-encode password
 db_name = os.getenv("DB_NAME", "local_pdf_db")
-MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{encoded_password}@cluster0.hvrs8.mongodb.net/{db_name}?retryWrites=true&w=majority"
+MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{encoded_password}@cluster0.5fv3e.mongodb.net/{db_name}?retryWrites=true&w=majority&appName=Cluster0"
 
 # Define the PDF storage path
 pdf_storage_path = os.getenv("PDF_STORAGE_PATH", "d:\\Graylogic\\LLM\\flask\\src\\assets\\uploads")
